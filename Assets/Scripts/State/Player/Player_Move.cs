@@ -6,25 +6,28 @@ public class Player_Move : PlayerState
 {
     public Player_Move(Player player) : base(player)
     {
+        Debug.Log("무브상태 입장");
         HasPhysics = true;
     }
 
     public override void Enter() { }
     public override void Update()
     {
-        base.Update();
-        // 레이 캐스트
-        // if(이동 키입력 없음)
-        // {
-        //     player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Idle];
-        // }
-        //
+        // 레이 캐스트 정면 근접 : 정면이 벽인지, 문인지, 사람인지, 사다리인지 등 판단 필요
+
+        if(player.InputDirection == Vector2.zero)
+        {
+            player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Idle]);
+        }
         // 구르는 중이 아니면
         // if(!isRolling)
         // {
-        //      if(이동 키 조작이 없을 시)
-        //          Idle로 전이
-        //      if(이동 키 입력 시)
+        if(player.InputDirection != Vector2.zero)
+        {
+            Debug.Log("무브 상태 업데이트");
+            moveDir = SetMove(player.moveSpeed);
+            SetPlayerRotation(moveDir);
+        }
         //          if(isClimbWall && 전진)
         //              벽타기 상태 전이
         //          else if(isPlatform && 전진)
@@ -46,6 +49,7 @@ public class Player_Move : PlayerState
     }
     public override void FixedUpdate()
     {
+        Debug.Log("무브상태 픽스드업데이트");
         // 이동 로직 수행
         // if(isRolling)
         // {

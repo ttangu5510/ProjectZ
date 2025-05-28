@@ -1,15 +1,16 @@
+using UnityEngine;
 public class Player_Idle : PlayerState
 {
     public Player_Idle(Player player) : base(player) { }
 
     public override void Enter()
     {
-
+        Debug.Log(" 아이들 상태 입장");
     }
 
     public override void Update()
     {
-        base.Update();
+        Debug.Log("아이들 상태 업데이트");
         // if(A 키 입력 시)
         // {
         //      switch(상태에 따라)
@@ -34,10 +35,11 @@ public class Player_Idle : PlayerState
         //      Aim 상태로 전이
         // }
 
-        // if(이동 키 입력시)
-        // {
-        //      이동 상태로 전이
-        // }
+        if(player.InputDirection != Vector2.zero )
+        {
+            Debug.Log("무브 상태로 전이");
+            player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Move]);
+        }
 
         // if(주목 키 입력 시)
         //      주목 상태로 전이

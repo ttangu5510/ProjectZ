@@ -1,5 +1,7 @@
 using Cinemachine;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour, IDamagable
 {
@@ -9,9 +11,13 @@ public class Player : MonoBehaviour, IDamagable
     [field: SerializeField] public float jumpPower { get; set; }
     [field: SerializeField] public int attackPower { get; set; }
     [field: SerializeField] public int hp { get; set; }
+    [field:Range(0.01f,2f)][field: SerializeField] public float rotSensitivity { get; set; }
+    [field:Range(10f,360f)][field: SerializeField] public float rotSpeed { get; set; }
+    public Vector2 currentRotation;
 
     // 인스턴스 및 컴포넌트 참조
     [SerializeField] public CinemachineVirtualCamera virtualCamera;
+    [SerializeField] public Transform aimCamera;
 
     public StateMachine stateMachine;
     public Rigidbody rig;
@@ -32,8 +38,7 @@ public class Player : MonoBehaviour, IDamagable
     {
         animator = GetComponent<Animator>();
         rig = GetComponent<Rigidbody>();
-
-
+        currentRotation = new();
         StateMachineInit();
     }
     void OnCollisionEnter(Collision collision)
@@ -56,6 +61,12 @@ public class Player : MonoBehaviour, IDamagable
         //  stateMachine.ChangeState(stateMachine.stateDic[SState.Jump]);
     }
 
+    private void Update()
+    {
+
+        stateMachine.curState.Update();
+    }
+
     // SM 생성 및 딕셔너리 추가
     void StateMachineInit()
     {
@@ -76,5 +87,19 @@ public class Player : MonoBehaviour, IDamagable
     {
         hp -= damage;
         stateMachine.ChangeState(stateMachine.stateDic[SState.OnHit]);
+    }
+
+    // 인풋 시스템
+    public Vector2 InputDirection { get; private set; }
+    public Vector2 RotateDirection { get; private set; }
+    public void OnMove(InputValue value)
+    {
+        InputDirection = value.Get<Vector2>();
+    }
+    public void OnRotate(InputValue value)
+    {
+        Vector2 rotDir = value.Get<Vector2>();
+        rotDir.y *= -1;
+        RotateDirection = rotDir * rotSensitivity;
     }
 }

@@ -6,7 +6,6 @@ public class Player_Move : PlayerState
 {
     public Player_Move(Player player) : base(player)
     {
-        Debug.Log("무브상태 입장");
         HasPhysics = true;
     }
 
@@ -19,6 +18,7 @@ public class Player_Move : PlayerState
         {
             player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Idle]);
         }
+
         // 구르는 중이 아니면
         // if(!isRolling)
         // {
@@ -44,12 +44,11 @@ public class Player_Move : PlayerState
     }
     public override void FixedUpdate()
     {
-        Debug.Log("무브상태 픽스드업데이트");
         if (player.InputDirection != Vector2.zero)
         {
-            moveDir = SetMove(player.moveSpeed);
+            Vector3 moveDir = SetMove(player.moveSpeed);
+            Vector3 aimDir = SetAimRotation();
             SetPlayerRotation(moveDir);
-            SetAimRotation();
 
         }
         // 이동 로직 수행

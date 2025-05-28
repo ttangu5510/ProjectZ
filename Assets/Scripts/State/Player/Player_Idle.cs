@@ -5,12 +5,10 @@ public class Player_Idle : PlayerState
 
     public override void Enter()
     {
-        Debug.Log(" 아이들 상태 입장");
     }
 
     public override void Update()
     {
-        Debug.Log("아이들 상태 업데이트");
         if(player.RotateDirection!= Vector2.zero)
         {
             SetAimRotation();
@@ -41,7 +39,6 @@ public class Player_Idle : PlayerState
 
         if(player.InputDirection != Vector2.zero )
         {
-            Debug.Log("무브 상태로 전이");
             player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Move]);
         }
 

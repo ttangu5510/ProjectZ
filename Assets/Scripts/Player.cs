@@ -18,6 +18,7 @@ public class Player : MonoBehaviour, IDamagable
     // 인스턴스 및 컴포넌트 참조
     [SerializeField] public CinemachineVirtualCamera virtualCamera;
     [SerializeField] public Transform aimCamera;
+    [SerializeField] public Transform playerAvatar;
 
     public StateMachine stateMachine;
     public Rigidbody rig;
@@ -26,6 +27,7 @@ public class Player : MonoBehaviour, IDamagable
     // 판단 변수들
     public bool isControlActive { get; set; } // 컨트롤 가능 여부
     public bool isAir {  get; set; }
+    public bool isAttack {  get; set; }
     public bool isGrab { get; set; }
     public bool isWeaponOut { get; set; }
     public bool isNaviOut { get; set; }
@@ -33,13 +35,30 @@ public class Player : MonoBehaviour, IDamagable
     public bool isRolling { get; set; }
     public bool isRollToWall { get; set; }
     public bool isInvincible { get; set; }
+
+    // 인풋액션
+    public InputAction attackInputAction;
     
-    void Start()
+    void Awake()
     {
         animator = GetComponent<Animator>();
         rig = GetComponent<Rigidbody>();
-        currentRotation = new();
         StateMachineInit();
+        attackInputAction = GetComponent<PlayerInput>().actions["Attack"];
+    }
+    private void OnEnable()
+    {
+        currentRotation = new();
+        attackInputAction.Enable();
+        attackInputAction.started += AttackInput;
+        //attackInputAction.canceled += AttackInput;
+        
+    }
+    private void OnDisable()
+    {
+        attackInputAction.Disable();
+        attackInputAction.started -= AttackInput;
+        attackInputAction.canceled -= AttackInput;
     }
     void OnCollisionEnter(Collision collision)
     {
@@ -109,5 +128,11 @@ public class Player : MonoBehaviour, IDamagable
         Vector2 rotDir = value.Get<Vector2>();
         rotDir.y *= -1;
         RotateDirection = rotDir * rotSensitivity;
+    }
+    public void AttackInput(InputAction.CallbackContext ctx)
+    {
+        Debug.Log(" 지금 호출 됨");
+        isAttack = ctx.started;
+        Debug.Log($"지금 isAttack 값 :{isAttack}");
     }
 }

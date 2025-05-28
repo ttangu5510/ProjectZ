@@ -1,4 +1,3 @@
-using Cinemachine.Utility;
 using UnityEngine;
 
 public class PlayerState : BaseState
@@ -6,12 +5,10 @@ public class PlayerState : BaseState
     // 플레이어 참조
     protected Player player;
 
-    protected Vector3 moveDir;
     // 생성자로 플레이어 참조를 받음
     public PlayerState(Player player)
     {
         this.player = player;
-        moveDir = new Vector3();
     }
 
     public override void Enter()
@@ -20,14 +17,15 @@ public class PlayerState : BaseState
     }
     public override void FixedUpdate()
     {
-        
+
     }
 
     public override void Update()
     {
-        
+
     }
     public override void Exit() { }
+
 
     // 움직임 관련 함수
     public Vector3 SetMove(float moveSpeed)
@@ -38,21 +36,21 @@ public class PlayerState : BaseState
         curVelocity.z = moveDirection.z * moveSpeed;
 
         player.rig.velocity = curVelocity;
-        return moveDirection.normalized;
+        return moveDirection;
     }
     public void SetPlayerRotation(Vector3 moveDirection)
     {
         if (moveDirection == Vector3.zero) return;
 
         Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
-        player.transform.rotation = Quaternion.Lerp(player.transform.rotation, targetRotation, player.rotSpeed * Time.deltaTime);
+        player.playerAvatar.rotation = Quaternion.Lerp(player.playerAvatar.rotation, targetRotation, player.rotSpeed * Time.deltaTime);
     }
     public Vector3 SetAimRotation()
     {
         player.currentRotation.x += player.RotateDirection.x;
         player.currentRotation.y = Mathf.Clamp(player.currentRotation.y + player.RotateDirection.y, -90, 90);
         player.transform.rotation = Quaternion.Euler(0, player.currentRotation.x, 0);
-        
+
         Vector3 currentEuler = player.aimCamera.localEulerAngles;
         player.aimCamera.localEulerAngles = new Vector3(player.currentRotation.y, currentEuler.y, currentEuler.z);
 

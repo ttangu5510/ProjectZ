@@ -67,6 +67,14 @@ public class Player : MonoBehaviour, IDamagable
         stateMachine.curState.Update();
     }
 
+    private void FixedUpdate()
+    {
+        if(stateMachine.curState.HasPhysics)
+        {
+            stateMachine.curState.FixedUpdate();
+        }
+    }
+
     // SM »ý¼º ¹× µñ¼Å³Ê¸® Ãß°¡
     void StateMachineInit()
     {

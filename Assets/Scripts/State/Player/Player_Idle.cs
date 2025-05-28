@@ -11,6 +11,10 @@ public class Player_Idle : PlayerState
     public override void Update()
     {
         Debug.Log("아이들 상태 업데이트");
+        if(player.RotateDirection!= Vector2.zero)
+        {
+            SetAimRotation();
+        }
         // if(A 키 입력 시)
         // {
         //      switch(상태에 따라)

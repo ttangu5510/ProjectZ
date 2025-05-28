@@ -14,7 +14,7 @@ public class Player_Move : PlayerState
     public override void Update()
     {
         // 레이 캐스트 정면 근접 : 정면이 벽인지, 문인지, 사람인지, 사다리인지 등 판단 필요
-
+        base.Update();
         if(player.InputDirection == Vector2.zero)
         {
             player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Idle]);
@@ -22,12 +22,7 @@ public class Player_Move : PlayerState
         // 구르는 중이 아니면
         // if(!isRolling)
         // {
-        if(player.InputDirection != Vector2.zero)
-        {
-            Debug.Log("무브 상태 업데이트");
-            moveDir = SetMove(player.moveSpeed);
-            SetPlayerRotation(moveDir);
-        }
+
         //          if(isClimbWall && 전진)
         //              벽타기 상태 전이
         //          else if(isPlatform && 전진)
@@ -50,6 +45,13 @@ public class Player_Move : PlayerState
     public override void FixedUpdate()
     {
         Debug.Log("무브상태 픽스드업데이트");
+        if (player.InputDirection != Vector2.zero)
+        {
+            moveDir = SetMove(player.moveSpeed);
+            SetPlayerRotation(moveDir);
+            SetAimRotation();
+
+        }
         // 이동 로직 수행
         // if(isRolling)
         // {

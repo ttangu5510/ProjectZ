@@ -14,4 +14,4 @@ public abstract class BaseState
     // HFSM 중, 부모 상태
 
 }
-public enum SState { Idle, Move, Attack, Defence, Look, Fall, Water, OnHit, OnInteract, Aim }
+public enum SState { Idle, Move, Attack, Defence, Look, Fall, Water, OnHit, OnInteract, Aim, OnWall, OnJump }

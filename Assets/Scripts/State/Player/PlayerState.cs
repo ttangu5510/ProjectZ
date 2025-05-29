@@ -22,7 +22,8 @@ public class PlayerState : BaseState
 
     public override void Update()
     {
-
+        if (player.isAim)
+            player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Aim]);
     }
     public override void Exit() { }
 

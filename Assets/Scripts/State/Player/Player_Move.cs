@@ -19,6 +19,7 @@ public class Player_Move : PlayerState
             player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Idle]);
             player.animator.SetBool("IsMove", false);
         }
+        
 
         // 구르는 중이 아니면
         // if(!isRolling)
@@ -48,7 +49,7 @@ public class Player_Move : PlayerState
         if (player.InputDirection != Vector2.zero)
         {
             Vector3 moveDir = SetMove(player.moveSpeed);
-            Vector3 aimDir = SetAimRotation();
+            SetAimRotation();
             SetPlayerRotation(moveDir);
             player.animator.SetFloat("MoveSpeed", player.rig.velocity.magnitude);
         }

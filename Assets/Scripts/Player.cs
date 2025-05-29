@@ -17,6 +17,7 @@ public class Player : MonoBehaviour, IDamagable
 
     // 인스턴스 및 컴포넌트 참조
     [SerializeField] public CinemachineVirtualCamera virtualCamera;
+    [SerializeField] public Transform aim;
     [SerializeField] public Transform aimCamera;
     [SerializeField] public Transform playerAvatar;
 
@@ -46,15 +47,18 @@ public class Player : MonoBehaviour, IDamagable
         animator = GetComponent<Animator>();
         rig = GetComponent<Rigidbody>();
         StateMachineInit();
+
         attackInputAction = GetComponent<PlayerInput>().actions["Attack"];
         aimInputAction = GetComponent<PlayerInput>().actions["Aim"];
     }
     private void OnEnable()
     {
         currentRotation = new();
+
         attackInputAction.Enable();
         attackInputAction.started += AttackInput;       
         attackInputAction.canceled += AttackInput;
+
         aimInputAction.Enable();
         aimInputAction.started += AimInput;
         aimInputAction.canceled += AimInput;
@@ -65,6 +69,7 @@ public class Player : MonoBehaviour, IDamagable
         attackInputAction.Disable();
         attackInputAction.started -= AttackInput;
         attackInputAction.canceled -= AttackInput;
+
         aimInputAction.Enable();
         aimInputAction.started -= AimInput;
         aimInputAction.canceled -= AimInput;

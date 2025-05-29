@@ -7,15 +7,18 @@ public class Player_Aim : PlayerState
     public Player_Aim(Player player) : base(player) { }
     public override void Enter()
     {
-        // 이동속도 절반
+        HasPhysics = true;
+        player.aimCamera.gameObject.SetActive(true);
     }
 
     public override void Update()
     {
         base.Update();
 
-        // if(조준 키 홀드 해제 시)
-        //      Idle 상태로 전이
+        if(!player.isAim)
+        {
+            player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Idle]);
+        }
 
         // if( 이동 키 입력 시)
         //      주목 애니메이션과 같음
@@ -33,8 +36,21 @@ public class Player_Aim : PlayerState
         //     새총 발사(IsBulletLoad) = false;
         // }
     }
+    public override void FixedUpdate()
+    {
+        if (player.isAim)
+        {
+            if(player.InputDirection!= Vector2.zero)
+            {
+                SetMove(player.moveSpeed);
+                Vector3 aimDir = SetAimRotation();
+                SetPlayerRotation(aimDir);
+                player.animator.SetFloat("MoveSpeed", player.rig.velocity.magnitude);
+            }
+        }
+    }
     public override void Exit()
     {
-        // 이동속도 복귀
+        player.aimCamera.gameObject.SetActive(false);
     }
 }

@@ -6,14 +6,14 @@ public class Player_Idle : PlayerState
         HasPhysics = true;
     }
 
-    public override void Enter()
+    public override void Enter() 
     {
-
+        player.rig.velocity = Vector3.zero;
     }
 
     public override void Update()
     {
-
+        base.Update();
         // if(A 키 입력 시)
         // {
         //      switch(상태에 따라)
@@ -37,7 +37,6 @@ public class Player_Idle : PlayerState
         //      isWeaponOut = true;
         //      Aim 상태로 전이
         // }
-
         if(player.InputDirection != Vector2.zero )
         {
             player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Move]);

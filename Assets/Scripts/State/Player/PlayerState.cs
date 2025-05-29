@@ -22,6 +22,7 @@ public class PlayerState : BaseState
 
     public override void Update()
     {
+        // 추가 조건 붙여야함
         if (player.isAim)
             player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Aim]);
     }
@@ -33,10 +34,10 @@ public class PlayerState : BaseState
     {
         Vector3 moveDirection = GetMoveDirection();
         Vector3 curVelocity = player.rig.velocity;
-        curVelocity.x = player.InputDirection.x * moveSpeed;
-        curVelocity.z = player.InputDirection.y * moveSpeed;
+        curVelocity.x = moveDirection.x * moveSpeed;
+        curVelocity.z = moveDirection.z * moveSpeed;
 
-        player.rig.velocity = curVelocity;
+        player.rig.velocity = curVelocity*player.InputDirection.magnitude;
         return moveDirection;
     }
     public void SetPlayerRotation(Vector3 moveDirection)
@@ -49,11 +50,11 @@ public class PlayerState : BaseState
     public Vector3 SetAimRotation()
     {
         player.currentRotation.x += player.RotateDirection.x;
-        player.currentRotation.y = Mathf.Clamp(player.currentRotation.y + player.RotateDirection.y, -90, 90);
+        player.currentRotation.y = Mathf.Clamp(player.currentRotation.y + player.RotateDirection.y, -50, 50);
         player.transform.rotation = Quaternion.Euler(0, player.currentRotation.x, 0);
 
         Vector3 currentEuler = player.aimCamera.localEulerAngles;
-        player.aimCamera.localEulerAngles = new Vector3(player.currentRotation.y, currentEuler.y, currentEuler.z);
+        player.aim.localEulerAngles = new Vector3(player.currentRotation.y, currentEuler.y, currentEuler.z);
 
         Vector3 rotateDirVec = player.transform.forward;
         rotateDirVec.y = 0;

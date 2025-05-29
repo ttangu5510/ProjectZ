@@ -20,6 +20,8 @@ public class Player : MonoBehaviour, IDamagable
     [SerializeField] public Transform aim;
     [SerializeField] public Transform aimCamera;
     [SerializeField] public Transform playerAvatar;
+    [SerializeField] public Transform playerUpperAvatar;
+
 
     public StateMachine stateMachine;
     public Rigidbody rig;
@@ -96,7 +98,7 @@ public class Player : MonoBehaviour, IDamagable
 
     private void Update()
     {
-
+        Debug.Log($"현제 스테이트 : {stateMachine.curState}");
         stateMachine.curState.Update();
     }
 

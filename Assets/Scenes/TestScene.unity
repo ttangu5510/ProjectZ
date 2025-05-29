@@ -460,7 +460,7 @@ MonoBehaviour:
   m_BlendUpdateMethod: 1
   m_DefaultBlend:
     m_Style: 1
-    m_Time: 2
+    m_Time: 0.2
     m_CustomCurve:
       serializedVersion: 2
       m_Curve: []
@@ -877,6 +877,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1289859860387102191, guid: cee7bc6e3418e8c40a6d7749d4ef09e8,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1489490418344026658, guid: cee7bc6e3418e8c40a6d7749d4ef09e8,
         type: 3}
       propertyPath: aim
@@ -975,6 +980,8 @@ PrefabInstance:
     m_RemovedComponents:
     - {fileID: 436832790439783649, guid: cee7bc6e3418e8c40a6d7749d4ef09e8, type: 3}
     - {fileID: 9016218223932204430, guid: cee7bc6e3418e8c40a6d7749d4ef09e8, type: 3}
+    - {fileID: 5118362690757308053, guid: cee7bc6e3418e8c40a6d7749d4ef09e8, type: 3}
+    - {fileID: 1779159231827796000, guid: cee7bc6e3418e8c40a6d7749d4ef09e8, type: 3}
     m_RemovedGameObjects:
     - {fileID: 8286876977301962053, guid: cee7bc6e3418e8c40a6d7749d4ef09e8, type: 3}
     m_AddedGameObjects:

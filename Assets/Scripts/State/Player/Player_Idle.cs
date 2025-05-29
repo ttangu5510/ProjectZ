@@ -31,7 +31,10 @@ public class Player_Idle : PlayerState
         //              나비가 플레이어 주위 패트롤
         // }
 
-        // if(조준 키 홀드)
+        if(player.isAim)
+        {
+            player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Aim]);
+        }
         // {
         //      새총 발도
         //      isWeaponOut = true;

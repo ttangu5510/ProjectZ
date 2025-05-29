@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Player_Aim : PlayerState
@@ -9,15 +7,21 @@ public class Player_Aim : PlayerState
     {
         HasPhysics = true;
         player.aimCamera.gameObject.SetActive(true);
+        player.animator.SetBool("IsAim", true);
     }
 
     public override void Update()
     {
         base.Update();
 
-        if(!player.isAim)
+        if (!player.isAim)
         {
             player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Idle]);
+        }
+        else if (player.isAim)
+        {
+            Vector3 aimDir = SetAimRotation();
+            SetPlayerRotation(aimDir);
         }
 
         // if( 이동 키 입력 시)
@@ -40,11 +44,9 @@ public class Player_Aim : PlayerState
     {
         if (player.isAim)
         {
-            if(player.InputDirection!= Vector2.zero)
+            if (player.InputDirection != Vector2.zero)
             {
                 SetMove(player.moveSpeed);
-                Vector3 aimDir = SetAimRotation();
-                SetPlayerRotation(aimDir);
                 player.animator.SetFloat("MoveSpeed", player.rig.velocity.magnitude);
             }
         }
@@ -52,5 +54,6 @@ public class Player_Aim : PlayerState
     public override void Exit()
     {
         player.aimCamera.gameObject.SetActive(false);
+        player.animator.SetBool("IsAim", false);
     }
 }

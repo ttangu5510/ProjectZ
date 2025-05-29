@@ -9,7 +9,10 @@ public class Player_Move : PlayerState
         HasPhysics = true;
     }
 
-    public override void Enter() { }
+    public override void Enter() 
+    {
+        player.animator.SetBool("IsMove", true);
+    }
     public override void Update()
     {
         // 레이 캐스트 정면 근접 : 정면이 벽인지, 문인지, 사람인지, 사다리인지 등 판단 필요
@@ -17,7 +20,10 @@ public class Player_Move : PlayerState
         if(player.InputDirection == Vector2.zero)
         {
             player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Idle]);
-            player.animator.SetBool("IsMove", false);
+        }
+        if(player.isAim)
+        {
+            player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Aim]);
         }
         
 
@@ -65,7 +71,8 @@ public class Player_Move : PlayerState
     }
     public override void Exit() 
     {
-
+        player.animator.SetBool("IsMove", false);
+        player.animator.SetFloat("MoveSpeed", 0f);
     }
 
 }

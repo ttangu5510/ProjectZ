@@ -80,7 +80,7 @@
                     "name": "",
                     "id": "158582f0-288d-4669-93e5-cf34dd099c00",
                     "path": "<Gamepad>/rightTrigger",
-                    "interactions": "",
+                    "interactions": "Hold",
                     "processors": "",
                     "groups": "",
                     "action": "Aim",

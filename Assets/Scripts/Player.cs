@@ -28,6 +28,7 @@ public class Player : MonoBehaviour, IDamagable
     public bool isControlActive { get; set; } // 컨트롤 가능 여부
     public bool isAir {  get; set; }
     public bool isAttack {  get; set; }
+    public bool isAim { get; set; }
     public bool isGrab { get; set; }
     public bool isWeaponOut { get; set; }
     public bool isNaviOut { get; set; }
@@ -38,20 +39,25 @@ public class Player : MonoBehaviour, IDamagable
 
     // 인풋액션
     public InputAction attackInputAction;
-    
+    public InputAction aimInputAction;
+
     void Awake()
     {
         animator = GetComponent<Animator>();
         rig = GetComponent<Rigidbody>();
         StateMachineInit();
         attackInputAction = GetComponent<PlayerInput>().actions["Attack"];
+        aimInputAction = GetComponent<PlayerInput>().actions["Aim"];
     }
     private void OnEnable()
     {
         currentRotation = new();
         attackInputAction.Enable();
-        attackInputAction.started += AttackInput;
-        //attackInputAction.canceled += AttackInput;
+        attackInputAction.started += AttackInput;       
+        attackInputAction.canceled += AttackInput;
+        aimInputAction.Enable();
+        aimInputAction.started += AimInput;
+        aimInputAction.canceled += AimInput;
         
     }
     private void OnDisable()
@@ -59,6 +65,9 @@ public class Player : MonoBehaviour, IDamagable
         attackInputAction.Disable();
         attackInputAction.started -= AttackInput;
         attackInputAction.canceled -= AttackInput;
+        aimInputAction.Enable();
+        aimInputAction.started -= AimInput;
+        aimInputAction.canceled -= AimInput;
     }
     void OnCollisionEnter(Collision collision)
     {
@@ -131,8 +140,10 @@ public class Player : MonoBehaviour, IDamagable
     }
     public void AttackInput(InputAction.CallbackContext ctx)
     {
-        Debug.Log(" 지금 호출 됨");
         isAttack = ctx.started;
-        Debug.Log($"지금 isAttack 값 :{isAttack}");
+    }
+    public void AimInput(InputAction.CallbackContext ctx)
+    {
+        isAim = ctx.started;
     }
 }

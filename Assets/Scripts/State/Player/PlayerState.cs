@@ -32,8 +32,8 @@ public class PlayerState : BaseState
     {
         Vector3 moveDirection = GetMoveDirection();
         Vector3 curVelocity = player.rig.velocity;
-        curVelocity.x = moveDirection.x * moveSpeed;
-        curVelocity.z = moveDirection.z * moveSpeed;
+        curVelocity.x = player.InputDirection.x * moveSpeed;
+        curVelocity.z = player.InputDirection.y * moveSpeed;
 
         player.rig.velocity = curVelocity;
         return moveDirection;

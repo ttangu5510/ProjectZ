@@ -1,18 +1,19 @@
 using UnityEngine;
 public class Player_Idle : PlayerState
 {
-    public Player_Idle(Player player) : base(player) { }
+    public Player_Idle(Player player) : base(player) 
+    {
+        HasPhysics = true;
+    }
 
     public override void Enter()
     {
+
     }
 
     public override void Update()
     {
-        if(player.RotateDirection!= Vector2.zero)
-        {
-            SetAimRotation();
-        }
+
         // if(A 키 입력 시)
         // {
         //      switch(상태에 따라)
@@ -40,6 +41,7 @@ public class Player_Idle : PlayerState
         if(player.InputDirection != Vector2.zero )
         {
             player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Move]);
+            player.animator.SetBool("IsMove", true);
         }
 
         // if(주목 키 입력 시)
@@ -50,6 +52,13 @@ public class Player_Idle : PlayerState
 
         // if(공격 키 입력 시)
         //      공격 상태로 전이
+    }
+    public override void FixedUpdate()
+    {
+        if (player.RotateDirection != Vector2.zero)
+        {
+            SetAimRotation();
+        }
     }
 
     public override void Exit() { }

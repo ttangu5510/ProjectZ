@@ -36,6 +36,7 @@ public class Player : MonoBehaviour, IDamagable
     public bool isWeaponOut { get; set; }
     public bool isNaviOut { get; set; }
     public bool isBulletLoad { get; set; }
+    public bool isInteract {  get; set; }
     public bool isRolling { get; set; }
     public bool isRollToWall { get; set; }
     public bool isInvincible { get; set; }
@@ -43,6 +44,7 @@ public class Player : MonoBehaviour, IDamagable
     // 인풋액션
     public InputAction attackInputAction;
     public InputAction aimInputAction;
+    public InputAction interactionInputAction;
 
     void Awake()
     {
@@ -52,6 +54,7 @@ public class Player : MonoBehaviour, IDamagable
 
         attackInputAction = GetComponent<PlayerInput>().actions["Attack"];
         aimInputAction = GetComponent<PlayerInput>().actions["Aim"];
+        interactionInputAction = GetComponent<PlayerInput>().actions["Interaction"];
     }
     private void OnEnable()
     {
@@ -65,6 +68,12 @@ public class Player : MonoBehaviour, IDamagable
         aimInputAction.started += AimInput;
         aimInputAction.canceled += AimInput;
 
+        interactionInputAction.Enable();
+        interactionInputAction.started += InteractionInput;
+        interactionInputAction.canceled += InteractionInput;
+        // performed를 쓰는 방법
+        // .performed를 추가하면 됨
+
     }
     private void OnDisable()
     {
@@ -72,21 +81,27 @@ public class Player : MonoBehaviour, IDamagable
         attackInputAction.started -= AttackInput;
         attackInputAction.canceled -= AttackInput;
 
-        aimInputAction.Enable();
+        aimInputAction.Disable();
         aimInputAction.started -= AimInput;
         aimInputAction.canceled -= AimInput;
+
+        interactionInputAction.Disable();
+        interactionInputAction.started -= InteractionInput;
+        interactionInputAction.canceled -= InteractionInput;
     }
     void OnCollisionEnter(Collision collision)
     {
+        // if(플레이어가 isAir && collision = 땅)
+        // 체인지스테이트 = Idle
         // 구르는 중 벽에 부딪히면
-        if (isRolling && collision.gameObject.layer == 6)
+        if (isRolling && collision.gameObject.layer == 9)
         {
             isRollToWall = true;
         }
         // 낙하 중 OnCollision 벽
         if (isAir && collision.gameObject.layer == 9)
         {
-            stateMachine.ChangeState(stateMachine.stateDic[SState.OnWall]);
+            stateMachine.ChangeState(stateMachine.stateDic[SState.ClimbWall]);
         }
     }
     private void OnTriggerEnter(Collider other)
@@ -117,10 +132,11 @@ public class Player : MonoBehaviour, IDamagable
         // 여기서 this는 Player 클래스의 인스턴스다
         stateMachine.stateDic.Add(SState.Idle, new Player_Idle(this));
         stateMachine.stateDic.Add(SState.Aim, new Player_Aim(this));
-        stateMachine.stateDic.Add(SState.Move, new Player_Move(this));
         stateMachine.stateDic.Add(SState.Attack, new Player_Attack(this));
-        stateMachine.stateDic.Add(SState.OnWall, new Player_OnWall(this));
         stateMachine.stateDic.Add(SState.OnHit, new Player_TakeHit(this));
+        stateMachine.stateDic.Add(SState.Move, new Player_Move(this));
+        stateMachine.stateDic.Add(SState.Roll, new Player_OnRoll(this));
+        stateMachine.stateDic.Add(SState.ClimbWall, new Player_OnWall(this));
         stateMachine.stateDic.Add(SState.OnJump, new Player_OnJump(this));
 
         // 초기 상태 설정
@@ -152,6 +168,11 @@ public class Player : MonoBehaviour, IDamagable
     public void AimInput(InputAction.CallbackContext ctx)
     {
         isAim = ctx.started;
+    }
+
+    public void InteractionInput(InputAction.CallbackContext ctx)
+    {
+        isInteract = ctx.started;
     }
 }
 

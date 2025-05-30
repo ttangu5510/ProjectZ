@@ -11,14 +11,8 @@ public class PlayerState : BaseState
         this.player = player;
     }
 
-    public override void Enter()
-    {
-
-    }
-    public override void FixedUpdate()
-    {
-
-    }
+    public override void Enter() { }
+    public override void FixedUpdate() { }
 
     public override void Update()
     {

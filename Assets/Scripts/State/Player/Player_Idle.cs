@@ -34,12 +34,10 @@ public class Player_Idle : PlayerState
         if(player.isAim)
         {
             player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Aim]);
-        }
-        // {
-        //      새총 발도
+        //      활 발도
         //      isWeaponOut = true;
         //      Aim 상태로 전이
-        // }
+        }
         if(player.InputDirection != Vector2.zero )
         {
             player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Move]);
@@ -52,8 +50,10 @@ public class Player_Idle : PlayerState
         // if(방어 키 입력 시)
         //      방어 상태로 전이
 
-        // if(공격 키 입력 시)
-        //      공격 상태로 전이
+        if(player.isAttack)
+        {
+            player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Attack]);
+        }
     }
     public override void FixedUpdate()
     {

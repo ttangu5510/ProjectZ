@@ -11,8 +11,8 @@ public class Player : MonoBehaviour, IDamagable
     [field: SerializeField] public float jumpPower { get; set; }
     [field: SerializeField] public int attackPower { get; set; }
     [field: SerializeField] public int hp { get; set; }
-    [field:Range(0.01f,2f)][field: SerializeField] public float rotSensitivity { get; set; }
-    [field:Range(10f,360f)][field: SerializeField] public float rotSpeed { get; set; }
+    [field: Range(0.01f, 2f)][field: SerializeField] public float rotSensitivity { get; set; }
+    [field: Range(10f, 360f)][field: SerializeField] public float rotSpeed { get; set; }
     public Vector2 currentRotation;
 
     // 인스턴스 및 컴포넌트 참조
@@ -29,8 +29,8 @@ public class Player : MonoBehaviour, IDamagable
 
     // 판단 변수들
     public bool isControlActive { get; set; } // 컨트롤 가능 여부
-    public bool isAir {  get; set; }
-    public bool isAttack {  get; set; }
+    public bool isAir { get; set; }
+    public bool isAttack { get; set; }
     public bool isAim { get; set; }
     public bool isGrab { get; set; }
     public bool isWeaponOut { get; set; }
@@ -58,13 +58,13 @@ public class Player : MonoBehaviour, IDamagable
         currentRotation = new();
 
         attackInputAction.Enable();
-        attackInputAction.started += AttackInput;       
+        attackInputAction.started += AttackInput;
         attackInputAction.canceled += AttackInput;
 
         aimInputAction.Enable();
         aimInputAction.started += AimInput;
         aimInputAction.canceled += AimInput;
-        
+
     }
     private void OnDisable()
     {
@@ -79,12 +79,12 @@ public class Player : MonoBehaviour, IDamagable
     void OnCollisionEnter(Collision collision)
     {
         // 구르는 중 벽에 부딪히면
-        if(isRolling && collision.gameObject.layer == 6)
+        if (isRolling && collision.gameObject.layer == 6)
         {
             isRollToWall = true;
         }
         // 낙하 중 OnCollision 벽
-        if(isAir&&collision.gameObject.layer == 9)
+        if (isAir && collision.gameObject.layer == 9)
         {
             stateMachine.ChangeState(stateMachine.stateDic[SState.OnWall]);
         }
@@ -104,7 +104,7 @@ public class Player : MonoBehaviour, IDamagable
 
     private void FixedUpdate()
     {
-        if(stateMachine.curState.HasPhysics)
+        if (stateMachine.curState.HasPhysics)
         {
             stateMachine.curState.FixedUpdate();
         }
@@ -154,3 +154,4 @@ public class Player : MonoBehaviour, IDamagable
         isAim = ctx.started;
     }
 }
+

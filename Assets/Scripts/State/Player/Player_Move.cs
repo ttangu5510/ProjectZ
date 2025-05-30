@@ -25,7 +25,10 @@ public class Player_Move : PlayerState
         {
             player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Aim]);
         }
-        
+        if(player.isAttack)
+        {
+            player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Attack]);
+        }
 
         // 구르는 중이 아니면
         // if(!isRolling)

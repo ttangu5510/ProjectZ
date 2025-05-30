@@ -24,13 +24,6 @@ public class Player_Aim : PlayerState
             SetPlayerRotation(aimDir);
         }
 
-        // if( 이동 키 입력 시)
-        //      주목 애니메이션과 같음
-        //      이동 로직 수행
-
-        // if( R 스틱 조작 시)
-        //      카메라 움직임
-
         // if(Y키 홀드)
         // {
         //     새총 땡김(IsBulletLoad) = true;

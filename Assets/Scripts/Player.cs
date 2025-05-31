@@ -1,6 +1,5 @@
 using Cinemachine;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour, IDamagable
@@ -27,6 +26,9 @@ public class Player : MonoBehaviour, IDamagable
     public Rigidbody rig;
     public Animator animator;
 
+    private float canLandAngle = Mathf.Cos(45f * Mathf.Deg2Rad);
+    private float canClimbAngle = Mathf.Cos(70f * Mathf.Deg2Rad);
+
     // 판단 변수들
     public bool isControlActive { get; set; } // 컨트롤 가능 여부
     public bool isAir { get; set; }
@@ -36,7 +38,7 @@ public class Player : MonoBehaviour, IDamagable
     public bool isWeaponOut { get; set; }
     public bool isNaviOut { get; set; }
     public bool isBulletLoad { get; set; }
-    public bool isInteract {  get; set; }
+    public bool isInteract { get; set; }
     public bool isRolling { get; set; }
     public bool isRollToWall { get; set; }
     public bool isInvincible { get; set; }
@@ -91,18 +93,42 @@ public class Player : MonoBehaviour, IDamagable
     }
     void OnCollisionEnter(Collision collision)
     {
-        // if(플레이어가 isAir && collision = 땅)
-        // 체인지스테이트 = Idle
-        // 구르는 중 벽에 부딪히면
+        int contactCount = collision.contactCount;
+
+        for (int i = 0; i < contactCount; i++)
+        {
+            ContactPoint contact = collision.GetContact(i);
+            Vector3 contNormal = contact.normal;
+            float landingAngle = Vector3.Dot(transform.up, contNormal);
+            float wallAngle = Vector3.Dot(playerAvatar.forward, -contNormal);
+
+            if (collision.gameObject.layer == 10 && wallAngle > canClimbAngle)
+            {
+                stateMachine.ChangeState(stateMachine.stateDic[SState.ClimbWall]);
+            }
+            if (isAir)
+            {
+                // 자동 점프 후 착지
+                if (collision.gameObject.layer == 8 && landingAngle > canLandAngle)
+                {
+                    isAir = false;
+                    stateMachine.ChangeState(stateMachine.stateDic[SState.Idle]);
+                }
+                // 낙하 중 OnCollision 벽
+                if (collision.gameObject.layer == 10 && wallAngle > canClimbAngle)
+                {
+                    isAir = false;
+                    stateMachine.ChangeState(stateMachine.stateDic[SState.ClimbWall]);
+                }
+            }
+        }
         if (isRolling && collision.gameObject.layer == 9)
         {
             isRollToWall = true;
         }
-        // 낙하 중 OnCollision 벽
-        if (isAir && collision.gameObject.layer == 9)
-        {
-            stateMachine.ChangeState(stateMachine.stateDic[SState.ClimbWall]);
-        }
+
+
+
     }
     private void OnTriggerEnter(Collider other)
     {
@@ -144,8 +170,11 @@ public class Player : MonoBehaviour, IDamagable
     }
     public void TakeDamage(int damage)
     {
-        hp -= damage;
-        stateMachine.ChangeState(stateMachine.stateDic[SState.OnHit]);
+        if (!isInvincible)
+        {
+            stateMachine.ChangeState(stateMachine.stateDic[SState.OnHit]);
+            hp -= damage;
+        }
     }
 
     // 인풋 시스템

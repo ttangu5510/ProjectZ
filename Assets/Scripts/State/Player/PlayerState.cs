@@ -54,7 +54,10 @@ public class PlayerState : BaseState
 
         player.currentRotation.x += player.RotateDirection.x;
         player.currentRotation.y = Mathf.Clamp(player.currentRotation.y + player.RotateDirection.y, -50, 50);
+
+        Vector3 avatarRot = player.playerAvatar.forward;
         player.transform.rotation = Quaternion.Euler(0, player.currentRotation.x, 0);
+        player.playerAvatar.rotation = Quaternion.LookRotation(avatarRot);
 
         Vector3 currentEuler = player.aimCamera.localEulerAngles;
         player.aim.localEulerAngles = new Vector3(player.currentRotation.y, currentEuler.y, currentEuler.z);
@@ -70,16 +73,20 @@ public class PlayerState : BaseState
     }
 
     // 4방향으로만 입력됨
-    public Vector3 GetAvatarMoveDirection()
+    public Vector3 GetAvatarMoveDirection(out float moveX,out float moveY)
     {
         Vector3 direction;
         if (Mathf.Abs(player.InputDirection.x) > Mathf.Abs(player.InputDirection.y))
         {
             direction = player.playerAvatar.transform.right * player.InputDirection.x;
+            moveX = player.InputDirection.x;
+            moveY = 0;
         }
         else
         {
             direction = player.playerAvatar.transform.up * player.InputDirection.y;
+            moveX = 0;
+            moveY = player.InputDirection.y;
         }
         return direction.normalized;
     }

@@ -176,6 +176,7 @@ public class Player_OnWall : Player_Move
     }
     public override void Enter()
     {
+        player.animator.SetBool("IsClimb", true);
         // 낙하 중에 들어온 벽이면, 스타트 애니메이션 없음
         if (player.isAir)
         {
@@ -205,7 +206,7 @@ public class Player_OnWall : Player_Move
             // A 키 누르면 낙하상태로 전환
             if (player.isInteract)
             {
-                player.transform.Translate(-player.playerAvatar.transform.forward*0.5f, Space.World);
+                player.transform.Translate(-player.playerAvatar.transform.forward * 0.5f, Space.World);
                 player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Fall]);
             }
             if (Physics.Raycast(player.transform.position + Vector3.up * 1.5f, player.playerAvatar.forward, 0.6f))
@@ -250,12 +251,14 @@ public class Player_OnWall : Player_Move
         // canUpdate =false;
         player.rig.useGravity = true;
         player.isOnWall = false;
+        player.animator.SetBool("IsClimb", false);
     }
     private void SetClimbMove()
     {
-        Vector3 inputDir = GetAvatarMoveDirection();
-
-        player.rig.velocity = inputDir * player.moveSpeed*0.5f;
+        Vector3 inputDir = GetAvatarMoveDirection(out float moveX, out float moveY);
+        player.animator.SetFloat("MoveX", moveX);
+        player.animator.SetFloat("MoveY", moveY);
+        player.rig.velocity = inputDir * player.moveSpeed * 0.5f;
 
     }
 

@@ -28,6 +28,7 @@ public class Player : MonoBehaviour, IDamagable
 
     private float canLandAngle = Mathf.Cos(45f * Mathf.Deg2Rad);
     private float canClimbAngle = Mathf.Cos(70f * Mathf.Deg2Rad);
+    private float hitToWallAngle = Mathf.Cos(45f * Mathf.Deg2Rad);
 
     // 충돌체 노말벡터
     public Vector3 colNormal;
@@ -138,12 +139,12 @@ public class Player : MonoBehaviour, IDamagable
                 isStartClimbUp = true;
                 stateMachine.ChangeState(stateMachine.stateDic[SState.ClimbWall]);
             }
-        }
 
-        // 
-        if (isRolling && collision.gameObject.layer == 9)
-        {
-            isRollToWall = true;
+            // 구르다 벽에 충돌 시
+            if (isRolling && collision.gameObject.layer == 8 && wallAngle > hitToWallAngle)
+            {
+                isRollToWall = true;
+            }
         }
     }
 

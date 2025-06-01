@@ -29,6 +29,9 @@ public class Player : MonoBehaviour, IDamagable
     private float canLandAngle = Mathf.Cos(45f * Mathf.Deg2Rad);
     private float canClimbAngle = Mathf.Cos(70f * Mathf.Deg2Rad);
 
+    // 충돌체 노말벡터
+    public Vector3 colNormal;
+
     // 판단 변수들
     public bool isControlActive { get; set; } // 컨트롤 가능 여부
     public bool isAir { get; set; }
@@ -42,6 +45,12 @@ public class Player : MonoBehaviour, IDamagable
     public bool isRolling { get; set; }
     public bool isRollToWall { get; set; }
     public bool isInvincible { get; set; }
+
+    public bool isStartClimbUp { get; set; }
+    public bool isEndClimbUp { get; set; }
+    public bool isStartClimbDown { get; set; }
+    public bool isEndClimbDown { get; set; }
+    public bool isOnWall { get; set; }
 
     // 인풋액션
     public InputAction attackInputAction;
@@ -57,6 +66,8 @@ public class Player : MonoBehaviour, IDamagable
         attackInputAction = GetComponent<PlayerInput>().actions["Attack"];
         aimInputAction = GetComponent<PlayerInput>().actions["Aim"];
         interactionInputAction = GetComponent<PlayerInput>().actions["Interaction"];
+
+        colNormal = Vector3.zero;
     }
     private void OnEnable()
     {
@@ -102,39 +113,38 @@ public class Player : MonoBehaviour, IDamagable
             float landingAngle = Vector3.Dot(transform.up, contNormal);
             float wallAngle = Vector3.Dot(playerAvatar.forward, -contNormal);
 
-            if (collision.gameObject.layer == 10 && wallAngle > canClimbAngle)
-            {
-                stateMachine.ChangeState(stateMachine.stateDic[SState.ClimbWall]);
-            }
+            // 공중일 경우
             if (isAir)
             {
-                // 자동 점프 후 착지
+                // 자동 점프 중에서 착지 -> Idle
                 if (collision.gameObject.layer == 8 && landingAngle > canLandAngle)
                 {
+                    colNormal = contNormal;
                     isAir = false;
                     stateMachine.ChangeState(stateMachine.stateDic[SState.Idle]);
                 }
-                // 낙하 중 OnCollision 벽
+                // 낙하 중 OnCollision 벽 -> OnWall
                 if (collision.gameObject.layer == 10 && wallAngle > canClimbAngle)
                 {
-                    isAir = false;
+                    colNormal = contNormal;
                     stateMachine.ChangeState(stateMachine.stateDic[SState.ClimbWall]);
                 }
             }
+
+            // 공중이 아니고 오를 수 있는 벽과 충돌 -> OnWall
+            if (!isAir && collision.gameObject.layer == 10 && wallAngle > canClimbAngle)
+            {
+                colNormal = contNormal;
+                isStartClimbUp = true;
+                stateMachine.ChangeState(stateMachine.stateDic[SState.ClimbWall]);
+            }
         }
+
+        // 
         if (isRolling && collision.gameObject.layer == 9)
         {
             isRollToWall = true;
         }
-
-
-
-    }
-    private void OnTriggerEnter(Collider other)
-    {
-        // if(콜라이더가 플랫폼 엣지면)
-        //  isAir = true;
-        //  stateMachine.ChangeState(stateMachine.stateDic[SState.Jump]);
     }
 
     private void Update()
@@ -164,6 +174,7 @@ public class Player : MonoBehaviour, IDamagable
         stateMachine.stateDic.Add(SState.Roll, new Player_OnRoll(this));
         stateMachine.stateDic.Add(SState.ClimbWall, new Player_OnWall(this));
         stateMachine.stateDic.Add(SState.OnJump, new Player_OnJump(this));
+        stateMachine.stateDic.Add(SState.Fall, new Player_OnFall(this));
 
         // 초기 상태 설정
         stateMachine.curState = stateMachine.stateDic[SState.Idle];

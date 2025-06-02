@@ -280,6 +280,7 @@ GameObject:
   - component: {fileID: 5172454041998125139}
   - component: {fileID: 1723504981608677643}
   - component: {fileID: 735283730478342920}
+  - component: {fileID: 1368988910774176994}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -380,6 +381,7 @@ MonoBehaviour:
   playerUpperAvatar: {fileID: 0}
   rig: {fileID: 0}
   animator: {fileID: 0}
+  colNormal: {x: 0, y: 0, z: 0}
   attackInputAction:
     m_Name: Attack Input
     m_Type: 0
@@ -394,6 +396,15 @@ MonoBehaviour:
     m_Type: 0
     m_ExpectedControlType: 
     m_Id: fe93a547-b17f-4528-9462-5f8dfb2ecd33
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  interactionInputAction:
+    m_Name: Interaction Input
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: abb690c7-af99-4b1c-b4c4-877e69f00ba9
     m_Processors: 
     m_Interactions: 
     m_SingletonActionBindings: []
@@ -462,10 +473,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c89d674455e3c85448f248c27b8b96a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackRadius: 2
+  normalAttackRadius: 1.5
+  spinAttackRadius: 1.5
+  jumpAttackRadius: 1.5
   enemyLayer:
     serializedVersion: 2
     m_Bits: 128
+--- !u!114 &1368988910774176994
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6737074830499800404}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47ebc372f2dff2646a6cf92c52e78158, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animationTimer: 1
 --- !u!1001 &7067638448572430243
 PrefabInstance:
   m_ObjectHideFlags: 0

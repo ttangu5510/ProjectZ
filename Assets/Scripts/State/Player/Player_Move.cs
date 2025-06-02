@@ -172,59 +172,67 @@ public class Player_OnWall : Player_Move
     public Player_OnWall(Player player) : base(player)
     {
         HasPhysics = true;
-        canUpdate = false;
+        canUpdate = true;
     }
     public override void Enter()
     {
+        canUpdate = true;
         player.animator.SetBool("IsClimb", true);
         // 낙하 중에 들어온 벽이면, 스타트 애니메이션 없음
         if (player.isAir)
         {
             player.isAir = false;
         }
-
-        if (player.isStartClimbUp)
-        {
-            // 오르기 시작하는 애니메이션 재생
-            // 재생이 끝나면 canUpdate = true;
-            canUpdate = true;
-        }
-        else if (player.isStartClimbDown)
-        {
-            // 내려가기 시작하는 애니메이션 재생
-            // 재생이 끝나면 canUpdate = true;
-        }
-        player.isOnWall = true;
         // 벽 타는 중에는 중력을 꺼야지 자동으로 안 내려감
         player.rig.useGravity = false;
     }
+
     public override void Update()
     {
-        // 시작 애니메이션이 종료되어야 업데이트로 들어옴
         if (canUpdate)
         {
             // A 키 누르면 낙하상태로 전환
             if (player.isInteract)
             {
-                player.transform.Translate(-player.playerAvatar.transform.forward * 0.5f, Space.World);
-                player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Fall]);
+                ChangeToFall();
+
             }
-            if (Physics.Raycast(player.transform.position + Vector3.up * 1.5f, player.playerAvatar.forward, 0.6f))
+            // 플레이어 전방에 레이캐스트. 맞은 정보가 없으면 다 올라온 것으로 판단
+            Physics.Raycast(player.transform.position + Vector3.up * 1.1f, player.playerAvatar.forward, out RaycastHit hitInfo, 0.6f);
+            if (hitInfo.Equals(default(RaycastHit)))
             {
-                Debug.Log("벽 다 올라옴");
-                // canUpdate = false;
-                // 벽 다 올라간 애니메이션 재생
-                // 재생 종료 후
-                // 상태 변경 -> Idle;
+                SetToGround();
+            }
+            // 좌, 우 오를 수 없는 벽쪽으로 이동할 경우
+            else if(hitInfo.collider != null)
+            {
+                if(hitInfo.collider.gameObject.layer == 8)
+                {
+                    Physics.Raycast(player.transform.position + Vector3.up * 0.1f, player.playerAvatar.forward, out RaycastHit secHitInfo, 0.6f);
+                    // 만약, 벽 이면 낙하
+                    if (secHitInfo.collider != null)
+                    {
+                        if (secHitInfo.collider.gameObject.layer == 8)
+                        {
+                            ChangeToFall();
+                        }
+                    }
+                    // 만약, 공중이면 낙하
+                    else if (secHitInfo.Equals(default(RaycastHit)))
+                    {
+                        ChangeToFall();
+                    }
+                }
             }
         }
-
     }
     public override void FixedUpdate()
     {
         if (!canUpdate)
         {
             SetPlayerRotation(-player.colNormal);
+            Vector3 movePos = player.playerAvatar.transform.position + player.playerAvatar.transform.forward + Vector3.up * 0.5f;
+            player.transform.position = Vector3.MoveTowards(player.transform.position, movePos, 1f * Time.deltaTime);
         }
         if (canUpdate)
         {
@@ -243,14 +251,12 @@ public class Player_OnWall : Player_Move
 
         // if(이동 키 입력 시)
         //      벽 기준 상하좌우 이동 벽의 normal 벡터를 계속 받아와야 함
-
     }
     public override void Exit()
     {
         // player.isClimbWall = false;
         // canUpdate =false;
         player.rig.useGravity = true;
-        player.isOnWall = false;
         player.animator.SetBool("IsClimb", false);
     }
     private void SetClimbMove()
@@ -260,6 +266,25 @@ public class Player_OnWall : Player_Move
         player.animator.SetFloat("MoveY", moveY);
         player.rig.velocity = inputDir * player.moveSpeed * 0.5f;
 
+    }
+    private void SetToGround()
+    {
+        canUpdate = false;
+        player.rig.velocity = Vector3.zero;
+        player.animator.SetBool("IsClimb", false);
+        // canUpdate = false;
+        // 벽 다 올라간 애니메이션 재생
+        // 재생 종료 후
+        // 상태 변경 -> Idle;
+    }
+    public void ClimbAnimeDone()
+    {
+        player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Idle]);
+    }
+    public void ChangeToFall()
+    {
+        player.transform.Translate(-player.playerAvatar.transform.forward * 0.5f, Space.World);
+        player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Fall]);
     }
 
 
@@ -280,11 +305,11 @@ public class Player_OnJump : Player_Move
         player.rig.velocity = Vector3.zero;
         player.rig.AddForce((player.playerAvatar.forward + moveDir + Vector3.up) * player.moveSpeed * 1.3f, ForceMode.Impulse);
         player.animator.SetTrigger("IsJump");
-        player.animator.SetBool("IsAir", true);
+        player.animator.SetBool("IsAir",true);
     }
     public override void Update()
     {
-
+        // 시간 지나면 IsFall -> 트루로 바꾸기
     }
     public override void FixedUpdate()
     {
@@ -292,6 +317,7 @@ public class Player_OnJump : Player_Move
     }
     public override void Exit()
     {
+        // 플레이어 스크립트의 OnCollision에서 판단 후, 상태를 변경하면서 수행됨
         player.rig.velocity = Vector3.zero;
         player.animator.SetBool("IsAir", false);
     }
@@ -300,24 +326,49 @@ public class Player_OnJump : Player_Move
 // 낙하
 public class Player_OnFall : Player_Move
 {
+    private float timer;
+    private float hitTime = 1f;
     public Player_OnFall(Player player) : base(player) { }
 
     public override void Enter()
     {
         player.isAir = true;
+        player.isFalling = true;
+        player.animator.SetBool("IsFall", true);
         // 낙하 애니메이션 재생
     }
     public override void Update()
     {
-
+        timer += Time.deltaTime;
     }
     public override void FixedUpdate()
     {
         // 낙하 중 이동 가능(이속 절반)
+        if(timer > 1)
+        {
+            SetMove(player.moveSpeed*0.1f);
+        }
         // 낙하 중 카메라 조절 가능
+        SetAimRotation();
     }
     public override void Exit()
     {
+    }
+    public void CheckHitTime()
+    {
         player.isAir = false;
+        if(timer>hitTime)
+        {
+            // 히트 상태에서 추락으로 인한 애니메이션 재생
+            // 이후 IsFall = false
+            player.TakeDamage(1);
+            player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.OnHit]);
+        }
+        else
+        {
+            player.isFalling = false;
+            player.animator.SetBool("IsFall", false);
+        }
+        timer = 0;
     }
 }

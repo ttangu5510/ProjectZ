@@ -15,20 +15,25 @@ public class Player : MonoBehaviour, IDamagable
     public Vector2 currentRotation;
 
     // 인스턴스 및 컴포넌트 참조
+    [Header ("Set References")]
     [SerializeField] public CinemachineVirtualCamera virtualCamera;
     [SerializeField] public Transform aim;
     [SerializeField] public Transform aimCamera;
     [SerializeField] public Transform playerAvatar;
     [SerializeField] public Transform playerUpperAvatar;
 
+    
 
     public StateMachine stateMachine;
     public Rigidbody rig;
     public Animator animator;
+    public Renderer playerRenderer;
+    private Color playerColor;
 
     private float canLandAngle = Mathf.Cos(45f * Mathf.Deg2Rad);
     private float canClimbAngle = Mathf.Cos(70f * Mathf.Deg2Rad);
     private float hitToWallAngle = Mathf.Cos(45f * Mathf.Deg2Rad);
+    private Player_OnFall fallState;
 
     // 충돌체 노말벡터
     public Vector3 colNormal;
@@ -46,12 +51,9 @@ public class Player : MonoBehaviour, IDamagable
     public bool isRolling { get; set; }
     public bool isRollToWall { get; set; }
     public bool isInvincible { get; set; }
+    public bool isFalling { get; set; }
 
-    public bool isStartClimbUp { get; set; }
     public bool isEndClimbUp { get; set; }
-    public bool isStartClimbDown { get; set; }
-    public bool isEndClimbDown { get; set; }
-    public bool isOnWall { get; set; }
 
     // 인풋액션
     public InputAction attackInputAction;
@@ -67,8 +69,10 @@ public class Player : MonoBehaviour, IDamagable
         attackInputAction = GetComponent<PlayerInput>().actions["Attack"];
         aimInputAction = GetComponent<PlayerInput>().actions["Aim"];
         interactionInputAction = GetComponent<PlayerInput>().actions["Interaction"];
+        playerRenderer = GetComponentInChildren<Renderer>();
 
         colNormal = Vector3.zero;
+        playerColor = playerRenderer.material.color;
     }
     private void OnEnable()
     {
@@ -132,11 +136,18 @@ public class Player : MonoBehaviour, IDamagable
                 }
             }
 
+            // 낙하 중일 경우
+            if(isFalling && collision.gameObject.layer == 8)
+            {
+                stateMachine.stateDic.TryGetValue(SState.Fall,out BaseState state);
+                fallState = state as Player_OnFall;
+                fallState.CheckHitTime();
+            }
+
             // 공중이 아니고 오를 수 있는 벽과 충돌 -> OnWall
             if (!isAir && collision.gameObject.layer == 10 && wallAngle > canClimbAngle)
             {
                 colNormal = contNormal;
-                isStartClimbUp = true;
                 stateMachine.ChangeState(stateMachine.stateDic[SState.ClimbWall]);
             }
 
@@ -180,14 +191,33 @@ public class Player : MonoBehaviour, IDamagable
         // 초기 상태 설정
         stateMachine.curState = stateMachine.stateDic[SState.Idle];
     }
+
+    // 피격 인터페이스
     public void TakeDamage(int damage)
     {
         if (!isInvincible)
         {
-            stateMachine.ChangeState(stateMachine.stateDic[SState.OnHit]);
             hp -= damage;
+            if(hp<=0)
+            {
+                //player.Die();
+            }
         }
     }
+
+    // 피격 시 색상 변경
+    public void ChangeColor()
+    {
+        if(playerRenderer.material.color == playerColor)
+        {
+            playerRenderer.material.color = Color.red;
+        }
+        else
+        {
+            playerRenderer.material.color = playerColor;
+        }
+    }
+
 
     // 인풋 시스템
     public Vector2 InputDirection { get; private set; }

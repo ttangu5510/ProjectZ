@@ -1,62 +1,55 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Player_TakeHit : PlayerState
 {
-    public Player_TakeHit(Player player) : base(player) 
+    // TODO : 컬러 체인지 테스트
+    private float timer;
+    private float changeTime = 2f;
+    public Player_TakeHit(Player player) : base(player)
     {
         HasPhysics = true;
     }
 
-    public override void Enter() 
-    {
-        // 무적
-        //     player.isInvincible = true;
-
-    }
-    public override void FixedUpdate()
-    {
-        // 피격 애니메이션 재생
-        // 넉백
-        // player.rig.velocity = moveDir
-    }
-    public override void Exit()
-    {
-        //      player.isInvincible = false;
-    }
-}
-public class Player_HitToWall : Player_TakeHit
-{
-    public Player_HitToWall(Player player) : base(player)
-    {
-        HasPhysics = true;
-        // 진행방향 받아오기
-    }
     public override void Enter()
     {
-        base.Enter();
+        player.animator.SetBool("IsHit", true);
+
+        if (player.isFalling)
+        {
+            // 추락 피격 애니메이션 재생
+            // 애니메이션 끝날 때 상태 전환 함수 수행 = HitOver
+        }
+        else
+        {
+            // 피격 애니메이션 재생
+            // 넉백
+            player.rig.velocity = Vector3.zero;
+            // player.rig.velocity = moveDir
+
+        }
+
+        player.isInvincible = true;
     }
+    public override void Update() { }
     public override void FixedUpdate()
     {
-        // 튕겨나오는 애니메이션
-        // 넉백
-        // 플레이어 진행방향과 반대로 이동
+        timer += Time.deltaTime;
+        if(timer < changeTime)
+        {
+        player.ChangeColor();
+        }
+        else
+        {
+            HitOver();
+        }
     }
-    public override void Exit()
+    public override void Exit() { }
+    public void HitOver()
     {
-        base.Exit();
+        player.isInvincible = false;
+        player.animator.SetBool("IsHit", false);
+        player.animator.SetBool("IsFall", false);
+        player.isFalling = false;
+        player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Idle]);
     }
-
-
-}
-
-public class Player_FallHit : Player_TakeHit
-{
-    public Player_FallHit(Player player) : base(player)
-    {
-
-    }
-
-
 }

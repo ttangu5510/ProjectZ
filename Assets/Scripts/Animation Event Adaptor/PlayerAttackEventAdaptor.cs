@@ -4,10 +4,13 @@ public class PlayerAttackEventAdaptor : MonoBehaviour
 {
     public Player_Attack playerAtkState;
 
-    public float normalAttackRadius = 1.5f;
-    public float spinAttackRadius = 1.5f;
-    public float jumpAttackRadius = 1.5f;
-    public LayerMask enemyLayer = 1 << 7;
+    [Header("Set Attack Radius")]
+    [Range(0,2)][SerializeField]public float normalAttackRadius = 1.5f;
+    [Range(0, 2)][SerializeField] public float spinAttackRadius = 1.5f;
+    [Range(0, 2)][SerializeField] public float jumpAttackRadius = 1.5f;
+
+    [Header("Set Target Layer")]
+    [SerializeField] public LayerMask enemyLayer = 1 << 7;
 
     private void Start()
     {
@@ -37,7 +40,6 @@ public class PlayerAttackEventAdaptor : MonoBehaviour
         Collider[] hitEnemies = Physics.OverlapSphere(transform.position, normalAttackRadius, enemyLayer);
         if (playerAtkState != null)
         {
-            Debug.Log("플레이어 어택의 함수로 넣기");
             playerAtkState.NormalAttackDamage(hitEnemies);
         }
         else
@@ -51,7 +53,6 @@ public class PlayerAttackEventAdaptor : MonoBehaviour
 
         if (playerAtkState != null)
         {
-            Debug.Log("플레이어 어택의 함수로 넣기");
             playerAtkState.SpinAttackDamage(hitEnemies);
         }
         else
@@ -65,7 +66,6 @@ public class PlayerAttackEventAdaptor : MonoBehaviour
 
         if (playerAtkState != null)
         {
-            Debug.Log("플레이어 어택의 함수로 넣기");
      //       playerAtkState.FirstAttackDamage(hitEnemies);
         }
         else

@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -27,13 +29,13 @@ public class Player : MonoBehaviour, IDamagable
     public StateMachine stateMachine;
     public Rigidbody rig;
     public Animator animator;
-    public Renderer playerRenderer;
-    private Color playerColor;
+    public Renderer[] playerRenderers;
+    private Dictionary<Renderer, Color> playerColors;
+    private Player_OnFall fallState;
 
     private float canLandAngle = Mathf.Cos(45f * Mathf.Deg2Rad);
     private float canClimbAngle = Mathf.Cos(70f * Mathf.Deg2Rad);
     private float hitToWallAngle = Mathf.Cos(45f * Mathf.Deg2Rad);
-    private Player_OnFall fallState;
 
     // 충돌체 노말벡터
     public Vector3 colNormal;
@@ -43,15 +45,15 @@ public class Player : MonoBehaviour, IDamagable
     public bool isAir { get; set; }
     public bool isAttack { get; set; }
     public bool isAim { get; set; }
-    public bool isGrab { get; set; }
     public bool isWeaponOut { get; set; }
-    public bool isNaviOut { get; set; }
-    public bool isBulletLoad { get; set; }
     public bool isInteract { get; set; }
     public bool isRolling { get; set; }
     public bool isRollToWall { get; set; }
     public bool isInvincible { get; set; }
     public bool isFalling { get; set; }
+    //public bool isGrab { get; set; }
+    //public bool isNaviOut { get; set; }
+    //public bool isBulletLoad { get; set; }
 
     public bool isEndClimbUp { get; set; }
 
@@ -69,10 +71,20 @@ public class Player : MonoBehaviour, IDamagable
         attackInputAction = GetComponent<PlayerInput>().actions["Attack"];
         aimInputAction = GetComponent<PlayerInput>().actions["Aim"];
         interactionInputAction = GetComponent<PlayerInput>().actions["Interaction"];
-        playerRenderer = GetComponentInChildren<Renderer>();
+        playerRenderers = GetComponentsInChildren<Renderer>();
 
         colNormal = Vector3.zero;
-        playerColor = playerRenderer.material.color;
+
+        // 렌더러의 색상들 추가
+        playerColors = new();
+        for (int i = 0; i < playerRenderers.Length; i++)
+        {
+            if (playerRenderers[i] != null && playerRenderers[i].material != null && playerRenderers[i].material.color != null)
+            {
+                playerColors.Add(playerRenderers[i], playerRenderers[i].material.color);
+            }
+        }
+
     }
     private void OnEnable()
     {
@@ -208,14 +220,18 @@ public class Player : MonoBehaviour, IDamagable
     // 피격 시 색상 변경
     public void ChangeColor()
     {
-        if(playerRenderer.material.color == playerColor)
+        foreach (Renderer renderer in playerRenderers)
         {
-            playerRenderer.material.color = Color.red;
+            if (renderer.material.color == playerColors[renderer])
+            {
+                renderer.material.color = Color.red;
+            }
+            else
+            {
+                renderer.material.color = playerColors[renderer];
+            }
         }
-        else
-        {
-            playerRenderer.material.color = playerColor;
-        }
+
     }
 
 

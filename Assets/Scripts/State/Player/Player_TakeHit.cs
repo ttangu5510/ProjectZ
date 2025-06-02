@@ -4,7 +4,7 @@ public class Player_TakeHit : PlayerState
 {
     // TODO : 컬러 체인지 테스트
     private float timer;
-    private float changeTime = 2f;
+    private float changeTime = 1f;
     public Player_TakeHit(Player player) : base(player)
     {
         HasPhysics = true;
@@ -27,7 +27,7 @@ public class Player_TakeHit : PlayerState
             // player.rig.velocity = moveDir
 
         }
-
+        player.ChangeColor();
         player.isInvincible = true;
     }
     public override void Update() { }
@@ -36,7 +36,6 @@ public class Player_TakeHit : PlayerState
         timer += Time.deltaTime;
         if(timer < changeTime)
         {
-        player.ChangeColor();
         }
         else
         {
@@ -46,10 +45,12 @@ public class Player_TakeHit : PlayerState
     public override void Exit() { }
     public void HitOver()
     {
+        timer = 0;
         player.isInvincible = false;
         player.animator.SetBool("IsHit", false);
         player.animator.SetBool("IsFall", false);
         player.isFalling = false;
         player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Idle]);
+        player.ChangeColor();
     }
 }

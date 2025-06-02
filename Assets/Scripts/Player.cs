@@ -103,7 +103,8 @@ public class Player : MonoBehaviour, IDamagable
         interactionInputAction.canceled += InteractionInput;
         // performed를 쓰는 방법
         // .performed를 추가하면 됨
-
+        // InputAction의 Hold를 쓰는 법임
+        // 한개 더 있는데, 그건 밑에 적음
     }
     private void OnDisable()
     {
@@ -251,6 +252,8 @@ public class Player : MonoBehaviour, IDamagable
     public void AttackInput(InputAction.CallbackContext ctx)
     {
         isAttack = ctx.started;
+        //isAttack = attackInputAction.IsPressed();
+        // 눌려 있을 때만 true
     }
     public void AimInput(InputAction.CallbackContext ctx)
     {

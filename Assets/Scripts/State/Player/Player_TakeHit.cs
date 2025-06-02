@@ -14,33 +14,30 @@ public class Player_TakeHit : PlayerState
     {
         player.animator.SetBool("IsHit", true);
 
-        if (player.isFalling)
-        {
-            // 추락 피격 애니메이션 재생
-            // 애니메이션 끝날 때 상태 전환 함수 수행 = HitOver
-        }
-        else
-        {
-            // 피격 애니메이션 재생
-            // 넉백
+        if (!player.isFalling)
+        { 
             player.rig.velocity = Vector3.zero;
-            // player.rig.velocity = moveDir
 
+            Vector3 hitDirection = -player.playerAvatar.forward+Vector3.up;
+            player.rig.AddForce(hitDirection*3f, ForceMode.Impulse);
         }
         player.ChangeColor();
         player.isInvincible = true;
     }
-    public override void Update() { }
-    public override void FixedUpdate()
+    public override void Update() 
     {
         timer += Time.deltaTime;
-        if(timer < changeTime)
+        if (timer < changeTime)
         {
         }
         else
         {
             HitOver();
         }
+    }
+    public override void FixedUpdate()
+    {
+
     }
     public override void Exit() { }
     public void HitOver()

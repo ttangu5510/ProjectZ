@@ -281,7 +281,7 @@ GameObject:
   - component: {fileID: 1513368321634101670}
   - component: {fileID: 5570323848754025932}
   m_Layer: 5
-  m_Name: Button_Cancel
+  m_Name: Button_Load
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -659,7 +659,7 @@ GameObject:
   - component: {fileID: 429449341912734419}
   - component: {fileID: 7416291378738001499}
   m_Layer: 5
-  m_Name: Button_Confirm
+  m_Name: Button_Save
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -999,7 +999,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &514103446543277776
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1285,7 +1285,7 @@ GameObject:
   - component: {fileID: 3531349655296149011}
   - component: {fileID: 8747335447279692752}
   m_Layer: 5
-  m_Name: Button_Save1 (1)
+  m_Name: Button_Save2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1542,7 +1542,7 @@ GameObject:
   - component: {fileID: 3782209992296281394}
   - component: {fileID: 7660647291343283822}
   m_Layer: 5
-  m_Name: Button_Save1 (2)
+  m_Name: Button_Save3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -2,17 +2,34 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Singleton : MonoBehaviour
+public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    private static T instance;
+    public static T Instance
     {
-        
+        get
+        {
+            if (instance == null)
+            {
+                instance = FindObjectOfType<T>();
+                DontDestroyOnLoad(instance.gameObject);
+            }
+            return instance;
+        }
     }
-
-    // Update is called once per frame
-    void Update()
+    private void Awake()
     {
-        
+        CreateInstance();
+    }
+    void CreateInstance()
+    {
+        if (instance == null)
+        {
+            instance = this as T;
+        }
+        else if (instance != null)
+        {
+            Destroy(gameObject);
+        }
     }
 }

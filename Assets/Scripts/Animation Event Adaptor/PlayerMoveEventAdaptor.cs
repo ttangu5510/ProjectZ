@@ -4,9 +4,6 @@ using UnityEngine;
 
 public class PlayerMoveEventAdaptor : MonoBehaviour
 {
-    [Header("Set Timer")]
-    [Range(0.5f,2f)][SerializeField] private float animationTimer = 1f;
-
     private Player player;
     public Player_OnWall playerClimbState;
     void Start()

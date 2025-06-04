@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-public abstract class JsonSaveHandler
+public class JsonSaveHandler
 {
     public static string basePath
     {

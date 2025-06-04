@@ -1,6 +1,6 @@
+using Cinemachine;
 using System;
 using System.Collections.Generic;
-using Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -17,14 +17,14 @@ public class Player : MonoBehaviour, IDamagable
     public Vector2 currentRotation;
 
     // 인스턴스 및 컴포넌트 참조
-    [Header ("Set References")]
+    [Header("Set References")]
     [SerializeField] public CinemachineVirtualCamera virtualCamera;
     [SerializeField] public Transform aim;
     [SerializeField] public Transform aimCamera;
     [SerializeField] public Transform playerAvatar;
     [SerializeField] public Transform playerUpperAvatar;
 
-    
+
 
     public StateMachine stateMachine;
     public Rigidbody rig;
@@ -46,6 +46,7 @@ public class Player : MonoBehaviour, IDamagable
     public bool isAttack { get; set; }
     public bool isAim { get; set; }
     public bool isInteract { get; set; }
+    public bool isStart { get; set; }
 
     // 판단 변수들
     public bool isAir { get; set; }
@@ -73,8 +74,10 @@ public class Player : MonoBehaviour, IDamagable
         aimInputAction = GetComponent<PlayerInput>().actions["Aim"];
         interactionInputAction = GetComponent<PlayerInput>().actions["Interaction"];
         defenceInputAction = GetComponent<PlayerInput>().actions["Defence"];
-        playerRenderers = GetComponentsInChildren<Renderer>();
+        startInputAction = GetComponent<PlayerInput>().actions["Start"];
 
+
+        playerRenderers = GetComponentsInChildren<Renderer>();
         colNormal = Vector3.zero;
 
         // 렌더러의 색상들 추가
@@ -105,6 +108,10 @@ public class Player : MonoBehaviour, IDamagable
         interactionInputAction.canceled += InteractionInput;
 
         defenceInputAction.Enable();
+
+        startInputAction.Enable();
+        startInputAction.started += StartInput;
+        startInputAction.canceled += StartInput;
         // performed를 쓰는 방법
         // .performed를 추가하면 됨
         // InputAction의 Hold를 쓰는 법임
@@ -125,6 +132,10 @@ public class Player : MonoBehaviour, IDamagable
         interactionInputAction.canceled -= InteractionInput;
 
         defenceInputAction.Disable();
+
+        startInputAction.Enable();
+        startInputAction.started += StartInput;
+        startInputAction.canceled += StartInput;
     }
     void OnCollisionEnter(Collision collision)
     {
@@ -138,7 +149,7 @@ public class Player : MonoBehaviour, IDamagable
             float wallAngle = Vector3.Dot(playerAvatar.forward, -contNormal);
 
             // 공중일 경우
-            if (isAir&&!isHit)
+            if (isAir && !isHit)
             {
                 // 자동 점프 중에서 착지 -> Idle
                 if (collision.gameObject.layer == 8 && landingAngle > canLandAngle)
@@ -154,7 +165,7 @@ public class Player : MonoBehaviour, IDamagable
                     stateMachine.ChangeState(stateMachine.stateDic[SState.ClimbWall]);
                 }
             }
-            else if(isHit)
+            else if (isHit)
             {
                 if (collision.gameObject.layer == 8 && landingAngle > canLandAngle)
                 {
@@ -188,12 +199,20 @@ public class Player : MonoBehaviour, IDamagable
 
     private void Update()
     {
-        Debug.Log($"현제 스테이트 : {stateMachine.curState}");
-        stateMachine.curState.Update();
-        // TODO : 피격 테스트
-        if(Input.GetKeyDown(KeyCode.Alpha1))
+        if (isStart)
         {
-            TakeDamage(1);
+            Time.timeScale = 0;
+            UIManager.Instance.OpenMenu();
+        }
+        else
+        {
+            Debug.Log($"현재 상태 : {stateMachine.curState}");
+            stateMachine.curState.Update();
+            // TODO : 피격 테스트
+            if (Input.GetKeyDown(KeyCode.Alpha1))
+            {
+                TakeDamage(1);
+            }
         }
     }
 
@@ -232,7 +251,7 @@ public class Player : MonoBehaviour, IDamagable
         if (!isInvincible)
         {
             hp -= damage;
-            if(hp<=0)
+            if (hp <= 0)
             {
                 //player.Die();
             }
@@ -244,8 +263,8 @@ public class Player : MonoBehaviour, IDamagable
     {
         if (stateMachine.curState == stateMachine.stateDic[SState.Defence])
         {
-            Vector3 hitDirection = damageTransform.position - transform.position ;
-            if (Vector3.Dot(playerAvatar.forward,hitDirection)<defenceAngle) 
+            Vector3 hitDirection = damageTransform.position - transform.position;
+            if (Vector3.Dot(playerAvatar.forward, hitDirection) < defenceAngle)
             {
                 TakeDamage(damage);
             }
@@ -287,6 +306,7 @@ public class Player : MonoBehaviour, IDamagable
     public InputAction aimInputAction;
     public InputAction interactionInputAction;
     public InputAction defenceInputAction;
+    public InputAction startInputAction;
     public void OnMove(InputValue value)
     {
         InputDirection = value.Get<Vector2>();
@@ -311,6 +331,10 @@ public class Player : MonoBehaviour, IDamagable
     public void InteractionInput(InputAction.CallbackContext ctx)
     {
         isInteract = ctx.started;
+    }
+    public void StartInput(InputAction.CallbackContext ctx)
+    {
+        isStart = ctx.started;
     }
 }
 

@@ -31,6 +31,13 @@ public class Player_Idle : PlayerState
         //              나비가 플레이어 주위 패트롤
         // }
 
+        if(player.isAttack)
+        {
+            player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Attack]);
+        }
+
+        // if(주목 키 입력 시)
+        //      주목 상태로 전이
         if(player.isAim)
         {
             player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Aim]);
@@ -41,19 +48,13 @@ public class Player_Idle : PlayerState
         if(player.InputDirection != Vector2.zero )
         {
             player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Move]);
-            player.animator.SetBool("IsMove", true);
         }
 
-        // if(주목 키 입력 시)
-        //      주목 상태로 전이
-
-        // if(방어 키 입력 시)
-        //      방어 상태로 전이
-
-        if(player.isAttack)
+        if(player.defenceInputAction.IsPressed())
         {
-            player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Attack]);
+            player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Defence]);
         }
+
     }
     public override void FixedUpdate()
     {

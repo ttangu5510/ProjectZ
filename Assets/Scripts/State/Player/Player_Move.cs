@@ -32,6 +32,10 @@ public class Player_Move : PlayerState
         {
             player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Roll]);
         }
+        if(player.defenceInputAction.IsPressed())
+        {
+            player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Defence]);
+        }
 
         // 캐릭터 앞의 아래로 빛을 쏴서 정보 읽음
         Vector3 frontPos = player.playerAvatar.transform.position + (player.transform.forward) * 0.1f + Vector3.up * 0.2f;
@@ -79,6 +83,7 @@ public class Player_OnRoll : Player_Move
         base.Enter();
         player.isRolling = true;
         player.animator.SetBool("IsRoll", true);
+        player.animator.SetBool("IsInvincible", true);
         moveDir = player.playerAvatar.transform.forward;
         rollState = RollState.Roll;
         player.isInvincible = true;
@@ -127,6 +132,7 @@ public class Player_OnRoll : Player_Move
         player.isInvincible = false;
         player.isRolling = false;
         player.animator.SetBool("IsRoll", false);
+        player.animator.SetBool("IsInvincible", false);
     }
 
     // 함수들
@@ -278,7 +284,9 @@ public class Player_OnWall : Player_Move
     {
         canUpdate = false;
         player.rig.velocity = Vector3.zero;
+        player.isInvincible = true;
         player.animator.SetBool("IsClimb", false);
+        player.animator.SetBool("IsInvincible", true);
         player.animator.SetTrigger("IsClimbDone");
         // 벽타기 종료 애니메이션 수행 중 이벤트로 ClimbAnimeDone() 호출됨
     }
@@ -286,6 +294,8 @@ public class Player_OnWall : Player_Move
     // Adaptor에서 호출되는 함수
     public void ClimbAnimeDone()
     {
+        player.isInvincible = false;
+        player.animator.SetBool("IsInvincible", false);
         player.stateMachine.ChangeState(player.stateMachine.stateDic[SState.Idle]);
     }
     public void ChangeToFall()

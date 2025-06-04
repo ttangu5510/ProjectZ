@@ -36,31 +36,32 @@ public class Player : MonoBehaviour, IDamagable
     private float canLandAngle = Mathf.Cos(45f * Mathf.Deg2Rad);
     private float canClimbAngle = Mathf.Cos(70f * Mathf.Deg2Rad);
     private float hitToWallAngle = Mathf.Cos(45f * Mathf.Deg2Rad);
+    private float defenceAngle = Mathf.Cos(80f * Mathf.Deg2Rad);
 
     // 충돌체 노말벡터
     public Vector3 colNormal;
 
-    // 판단 변수들
-    public bool isControlActive { get; set; } // 컨트롤 가능 여부
-    public bool isAir { get; set; }
+
+    // 인풋 판단
     public bool isAttack { get; set; }
     public bool isAim { get; set; }
-    public bool isWeaponOut { get; set; }
     public bool isInteract { get; set; }
+
+    // 판단 변수들
+    public bool isAir { get; set; }
     public bool isRolling { get; set; }
     public bool isRollToWall { get; set; }
     public bool isInvincible { get; set; }
     public bool isFalling { get; set; }
+    public bool isHit { get; set; }
+    //public bool isControlActive { get; set; } // 컨트롤 가능 여부
+    //public bool isWeaponOut { get; set; }
     //public bool isGrab { get; set; }
     //public bool isNaviOut { get; set; }
     //public bool isBulletLoad { get; set; }
 
-    public bool isEndClimbUp { get; set; }
 
-    // 인풋액션
-    public InputAction attackInputAction;
-    public InputAction aimInputAction;
-    public InputAction interactionInputAction;
+
 
     void Awake()
     {
@@ -71,6 +72,7 @@ public class Player : MonoBehaviour, IDamagable
         attackInputAction = GetComponent<PlayerInput>().actions["Attack"];
         aimInputAction = GetComponent<PlayerInput>().actions["Aim"];
         interactionInputAction = GetComponent<PlayerInput>().actions["Interaction"];
+        defenceInputAction = GetComponent<PlayerInput>().actions["Defence"];
         playerRenderers = GetComponentsInChildren<Renderer>();
 
         colNormal = Vector3.zero;
@@ -84,8 +86,8 @@ public class Player : MonoBehaviour, IDamagable
                 playerColors.Add(playerRenderers[i], playerRenderers[i].material.color);
             }
         }
-
     }
+
     private void OnEnable()
     {
         currentRotation = new();
@@ -101,6 +103,8 @@ public class Player : MonoBehaviour, IDamagable
         interactionInputAction.Enable();
         interactionInputAction.started += InteractionInput;
         interactionInputAction.canceled += InteractionInput;
+
+        defenceInputAction.Enable();
         // performed를 쓰는 방법
         // .performed를 추가하면 됨
         // InputAction의 Hold를 쓰는 법임
@@ -119,6 +123,8 @@ public class Player : MonoBehaviour, IDamagable
         interactionInputAction.Disable();
         interactionInputAction.started -= InteractionInput;
         interactionInputAction.canceled -= InteractionInput;
+
+        defenceInputAction.Disable();
     }
     void OnCollisionEnter(Collision collision)
     {
@@ -132,7 +138,7 @@ public class Player : MonoBehaviour, IDamagable
             float wallAngle = Vector3.Dot(playerAvatar.forward, -contNormal);
 
             // 공중일 경우
-            if (isAir)
+            if (isAir&&!isHit)
             {
                 // 자동 점프 중에서 착지 -> Idle
                 if (collision.gameObject.layer == 8 && landingAngle > canLandAngle)
@@ -148,11 +154,19 @@ public class Player : MonoBehaviour, IDamagable
                     stateMachine.ChangeState(stateMachine.stateDic[SState.ClimbWall]);
                 }
             }
+            else if(isHit)
+            {
+                if (collision.gameObject.layer == 8 && landingAngle > canLandAngle)
+                {
+                    colNormal = contNormal;
+                    isAir = false;
+                }
+            }
 
             // 낙하 중일 경우
-            if(isFalling && collision.gameObject.layer == 8)
+            if (isFalling && collision.gameObject.layer == 8)
             {
-                stateMachine.stateDic.TryGetValue(SState.Fall,out BaseState state);
+                stateMachine.stateDic.TryGetValue(SState.Fall, out BaseState state);
                 fallState = state as Player_OnFall;
                 fallState.CheckHitTime();
             }
@@ -176,6 +190,11 @@ public class Player : MonoBehaviour, IDamagable
     {
         Debug.Log($"현제 스테이트 : {stateMachine.curState}");
         stateMachine.curState.Update();
+        // TODO : 피격 테스트
+        if(Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            TakeDamage(1);
+        }
     }
 
     private void FixedUpdate()
@@ -200,6 +219,7 @@ public class Player : MonoBehaviour, IDamagable
         stateMachine.stateDic.Add(SState.ClimbWall, new Player_OnWall(this));
         stateMachine.stateDic.Add(SState.OnJump, new Player_OnJump(this));
         stateMachine.stateDic.Add(SState.Fall, new Player_OnFall(this));
+        stateMachine.stateDic.Add(SState.Defence, new Player_Defence(this));
 
         // 초기 상태 설정
         stateMachine.curState = stateMachine.stateDic[SState.Idle];
@@ -208,6 +228,7 @@ public class Player : MonoBehaviour, IDamagable
     // 피격 인터페이스
     public void TakeDamage(int damage)
     {
+
         if (!isInvincible)
         {
             hp -= damage;
@@ -215,6 +236,27 @@ public class Player : MonoBehaviour, IDamagable
             {
                 //player.Die();
             }
+            stateMachine.ChangeState(stateMachine.stateDic[SState.OnHit]);
+        }
+    }
+    // 피격 오버로딩
+    public void TakeDamage(int damage, Transform damageTransform)
+    {
+        if (stateMachine.curState == stateMachine.stateDic[SState.Defence])
+        {
+            Vector3 hitDirection = damageTransform.position - transform.position ;
+            if (Vector3.Dot(playerAvatar.forward,hitDirection)<defenceAngle) 
+            {
+                TakeDamage(damage);
+            }
+            else
+            {
+                Debug.Log("방어 성공");
+            }
+        }
+        else
+        {
+            TakeDamage(damage);
         }
     }
 
@@ -239,6 +281,12 @@ public class Player : MonoBehaviour, IDamagable
     // 인풋 시스템
     public Vector2 InputDirection { get; private set; }
     public Vector2 RotateDirection { get; private set; }
+
+    // 인풋액션
+    public InputAction attackInputAction;
+    public InputAction aimInputAction;
+    public InputAction interactionInputAction;
+    public InputAction defenceInputAction;
     public void OnMove(InputValue value)
     {
         InputDirection = value.Get<Vector2>();
